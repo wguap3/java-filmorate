@@ -39,13 +39,14 @@ public class UserControllerTests {
     public void emptyEmailShouldFailValidation() {
         User user = new User();
         user.setEmail("");
+        user.setLogin("testLogin");
         user.setName("Test User");
         user.setBirthday(LocalDate.of(2000, 1, 1));
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertFalse(violations.isEmpty());
         assertTrue(violations.stream()
-                .anyMatch(v -> v.getMessage().contains("Электронная почта не может быть пустой")));
+                .anyMatch(v -> v.getMessage().contains("Электронная почта не может быть пустой.")));
     }
 
     @Test
