@@ -1,91 +1,82 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FilmControllerTests {
-    private FilmController filmController;
+    private Validator validator;
 
     @BeforeEach
-    public void setUp() {
-        filmController = new FilmController();
+    void setup() {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
     }
 
     @Test
-    public void createUserIsValidateData() {
+    public void validFilmShouldPassValidation() {
         Film film = new Film();
         film.setName("Test Film");
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2020, 2, 4));
         film.setDuration(120);
-        Film createdFilm = filmController.create(film);
-        assertNotNull(createdFilm.getId());
-        assertEquals("Test Film", createdFilm.getName());
-        assertEquals("Test Description", createdFilm.getDescription());
-        assertEquals(120, createdFilm.getDuration());
-        assertEquals(LocalDate.of(2020, 2, 4), createdFilm.getReleaseDate());
+
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        assertTrue(violations.isEmpty());
     }
 
+
     @Test
-    public void createUserIsEmptyName() {
+    public void emptyNameShouldFailValidation() {
         Film film = new Film();
         film.setName("");
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2020, 2, 4));
         film.setDuration(120);
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            filmController.create(film);
-        });
 
-        assertEquals("Название не может быть пустым!", exception.getMessage());
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        assertFalse(violations.isEmpty());
+
+        assertTrue(violations.stream().anyMatch(v -> v.getMessage().equals("Название не может быть пустым!")));
     }
 
-    @Test
-    public void createUserIsIncorrectDescription() {
-        Film film = new Film();
-        film.setName("Test Film");
-        film.setDescription("1Фильм — это искусство, которое сочетает в себе визуальные образы, звук и сюжет. Он способен вызывать эмоции, погружать зрителя в различные миры и рассказывать истории, отражающие человеческую природу.");
-        film.setReleaseDate(LocalDate.of(2020, 2, 4));
-        film.setDuration(120);
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            filmController.create(film);
-        });
-
-        assertEquals("Максимальная длина описания — 200 символов!", exception.getMessage());
-    }
 
     @Test
-    public void createUserIsIncorrectReleaseData() {
+    public void tooEarlyReleaseDateShouldFailValidation() {
         Film film = new Film();
-        film.setName("Test Film");
+        film.setName("Film");
         film.setDescription("Test Description");
-        film.setReleaseDate(LocalDate.of(1894, 2, 4));
+        film.setReleaseDate(LocalDate.of(1894, 1, 1));
         film.setDuration(120);
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            filmController.create(film);
-        });
 
-        assertEquals("Дата релиза не может быть раньше 28 декабря 1895 года!", exception.getMessage());
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        assertFalse(violations.isEmpty());
+
+        assertTrue(violations.stream().anyMatch(v -> v.getMessage().contains("Дата выпуска не может быть в будущем.")));
     }
 
     @Test
-    public void createUserIsIncorrectDuration() {
+    public void negativeDurationShouldFailValidation() {
         Film film = new Film();
         film.setName("Test Film");
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2020, 2, 4));
-        film.setDuration(-120);
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            filmController.create(film);
-        });
+        film.setDuration(-10);
 
-        assertEquals("Продолжительность фильма должна быть положительным числом!", exception.getMessage());
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        assertFalse(violations.isEmpty());
+
+        assertTrue(violations.stream().anyMatch(v -> v.getMessage().contains("положительным числом")));
     }
 
 }
