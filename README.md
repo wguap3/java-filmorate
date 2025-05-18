@@ -20,11 +20,12 @@ SELECT * FROM users WHERE id = 1;
 SELECT u.*
 FROM friendships AS f
 JOIN users AS u ON u.id = f.second_user_id
-WHERE f.first_user_id = 1;
+WHERE f.first_user_id = 1
+    AND f.status = 'CONFIRMED';
 ```
 **Получить жанры фильма:**
 ```sql
-SELECT g.*
+SELECT g.name
 FROM film_genres AS fg
 JOIN genres AS g ON g.id = fg.genre_id
 WHERE fg.film_id = 10;
