@@ -13,31 +13,31 @@ public class FriendshipService {
     private final FriendshipStorage friendshipStorage;
 
     @Autowired
-    public FriendshipService(FriendshipStorage friendshipStorage){
+    public FriendshipService(FriendshipStorage friendshipStorage) {
         this.friendshipStorage = friendshipStorage;
     }
 
-    public User addFriend(Long requesterId, Long targetId){
-        return friendshipStorage.addFriend(requesterId,targetId);
+    public User addFriend(Long requesterId, Long targetId) {
+        return friendshipStorage.addFriend(requesterId, targetId);
     }
 
-    public User confirmFriend(Long requesterId, Long targetId){
-        return friendshipStorage.confirmFriend(requesterId,targetId);
+    public User confirmFriend(Long requesterId, Long targetId) {
+        return friendshipStorage.confirmFriend(requesterId, targetId);
     }
 
-    public User removeFriend(Long userId, Long friendId){
-        return friendshipStorage.removeFriend(userId,friendId);
+    public User removeFriend(Long userId, Long friendId) {
+        return friendshipStorage.removeFriend(userId, friendId);
     }
 
-    public List<User> getFriends(Long userId){
+    public List<User> getFriends(Long userId) {
         return friendshipStorage.getFriends(userId);
     }
 
-    public List<User> getCommonFriends(Long userId, Long otherUserId){
-        return friendshipStorage.getCommonFriends(userId,otherUserId);
+    public List<User> getCommonFriends(Long userId, Long otherUserId) {
+        return friendshipStorage.getCommonFriends(userId, otherUserId);
     }
 
-    public List<Friendship> getAllFriendships(){
+    public List<Friendship> getAllFriendships() {
         return friendshipStorage.getAllFriendships();
     }
 }

@@ -7,9 +7,14 @@ import java.util.List;
 
 public interface FriendshipStorage {
     User addFriend(Long requesterId, Long targetId);
+
     User confirmFriend(Long requesterId, Long targetId);
+
     User removeFriend(Long userId, Long friendId);
+
     List<User> getFriends(Long userId);
+
     List<User> getCommonFriends(Long userId, Long otherUserId);
+
     List<Friendship> getAllFriendships();
 }
