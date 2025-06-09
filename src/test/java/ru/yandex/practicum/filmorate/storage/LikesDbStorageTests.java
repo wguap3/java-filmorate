@@ -59,14 +59,14 @@ public class LikesDbStorageTests {
     @Test
     void testCreateLike() {
         Like like = new Like();
-        like.setFilm_id(filmId1);
-        like.setUser_id(userId1);
+        like.setFilmId(filmId1);
+        like.setUserId(userId1);
 
         Like created = likesDbStorage.create(like);
 
         assertNotNull(created);
-        assertEquals(filmId1, created.getFilm_id());
-        assertEquals(userId1, created.getUser_id());
+        assertEquals(filmId1, created.getFilmId());
+        assertEquals(userId1, created.getUserId());
 
         Integer count = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM likes WHERE film_id = ? AND user_id = ?",
@@ -94,8 +94,8 @@ public class LikesDbStorageTests {
 
         assertTrue(likeOpt.isPresent());
         Like like = likeOpt.get();
-        assertEquals(filmId1, like.getFilm_id());
-        assertEquals(userId1, like.getUser_id());
+        assertEquals(filmId1, like.getFilmId());
+        assertEquals(userId1, like.getUserId());
     }
 
     @Test
