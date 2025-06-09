@@ -37,7 +37,7 @@ public class LikesDbStorage extends BaseStorage<Like> implements LikesStorage {
 
     @Override
     public Like create(Like like) {
-        jdbc.update(INSERT_QUERY, like.getFilm_id(), like.getUser_id());
+        jdbc.update(INSERT_QUERY, like.getFilmId(), like.getUserId());
         return like;
     }
 
