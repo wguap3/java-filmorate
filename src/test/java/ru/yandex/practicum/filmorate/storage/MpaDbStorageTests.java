@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Import({MpaDbStorage.class})
-public class MpaDbStorageTests {
+class MpaDbStorageTests {
 
     private final JdbcTemplate jdbcTemplate;
     private final MpaDbStorage mpaDbStorage;
@@ -33,48 +33,50 @@ public class MpaDbStorageTests {
     @Test
     void testCreateAndGetMpa() {
         Mpa mpa = new Mpa();
-        mpa.setMpa_name("PG-13");
+        mpa.setName("PG-13");
 
         Mpa created = mpaDbStorage.create(mpa);
         assertNotNull(created);
 
+        Long id = jdbcTemplate.queryForObject("SELECT id FROM mpa WHERE name = ?", Long.class, "PG-13");
+        assertNotNull(id);
+
         Collection<Mpa> allMpas = mpaDbStorage.getMpa();
         assertFalse(allMpas.isEmpty());
-        assertTrue(allMpas.stream().anyMatch(m -> m.getMpa_name().equals("PG-13")));
+        assertTrue(allMpas.stream().anyMatch(m -> "PG-13".equals(m.getName())));
     }
 
     @Test
     void testGetMpaById() {
-        jdbcTemplate.update("INSERT INTO mpa (mpa_name) VALUES (?)", "R");
-        Long id = jdbcTemplate.queryForObject("SELECT mpa_id FROM mpa WHERE mpa_name = ?", Long.class, "R");
+        jdbcTemplate.update("INSERT INTO mpa (name) VALUES (?)", "R");
+        Long id = jdbcTemplate.queryForObject("SELECT id FROM mpa WHERE name = ?", Long.class, "R");
 
         Optional<Mpa> optionalMpa = mpaDbStorage.getMpaById(id);
         assertTrue(optionalMpa.isPresent(), "Mpa should be found by ID");
-        assertEquals("R", optionalMpa.get().getMpa_name());
+        assertEquals("R", optionalMpa.get().getName());
     }
 
     @Test
     void testUpdateMpa() {
-        jdbcTemplate.update("INSERT INTO mpa (mpa_name) VALUES (?)", "PG");
-        Long id = jdbcTemplate.queryForObject("SELECT mpa_id FROM mpa WHERE mpa_name = ?", Long.class, "PG");
+        jdbcTemplate.update("INSERT INTO mpa (name) VALUES (?)", "PG");
+        Long id = jdbcTemplate.queryForObject("SELECT id FROM mpa WHERE name = ?", Long.class, "PG");
 
         Mpa mpaToUpdate = new Mpa();
-        mpaToUpdate.setMpa_id(id);
-        mpaToUpdate.setMpa_name("PG-13");
+        mpaToUpdate.setId(id);
+        mpaToUpdate.setName("PG-13");
 
         Mpa updated = mpaDbStorage.update(mpaToUpdate);
-
-        assertEquals("PG-13", updated.getMpa_name());
+        assertEquals("PG-13", updated.getName());
 
         Optional<Mpa> optionalMpa = mpaDbStorage.getMpaById(id);
         assertTrue(optionalMpa.isPresent());
-        assertEquals("PG-13", optionalMpa.get().getMpa_name());
+        assertEquals("PG-13", optionalMpa.get().getName());
     }
 
     @Test
     void testDeleteMpa() {
-        jdbcTemplate.update("INSERT INTO mpa (mpa_name) VALUES (?)", "G");
-        Long id = jdbcTemplate.queryForObject("SELECT mpa_id FROM mpa WHERE mpa_name = ?", Long.class, "G");
+        jdbcTemplate.update("INSERT INTO mpa (name) VALUES (?)", "G");
+        Long id = jdbcTemplate.queryForObject("SELECT id FROM mpa WHERE name = ?", Long.class, "G");
 
         mpaDbStorage.delete(id);
 
@@ -82,4 +84,6 @@ public class MpaDbStorageTests {
         assertFalse(optionalMpa.isPresent());
     }
 }
+
+
 

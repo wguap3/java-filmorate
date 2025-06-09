@@ -35,8 +35,8 @@ class FilmDbStorageTests {
     @Autowired
     private GenreDbStorage genreDbStorage;
 
-    private Long mpaId;
-    private List<Long> genreIds;
+    private Mpa mpa;
+    private Set<Genre> genres;
 
     @BeforeEach
     void setUp() {
@@ -46,10 +46,10 @@ class FilmDbStorageTests {
         jdbc.update("DELETE FROM genres");
         jdbc.update("DELETE FROM mpa");
 
-        Mpa mpa = new Mpa();
-        mpa.setMpa_name("PG-13");
-        mpaDbStorage.create(mpa);
-        mpaId = mpaDbStorage.getMpa().stream().findFirst().get().getMpa_id();
+        Mpa newMpa = new Mpa();
+        newMpa.setName("PG-13");
+        mpaDbStorage.create(newMpa);
+        mpa = mpaDbStorage.getMpa().stream().findFirst().get();
 
         Genre genre1 = new Genre();
         genre1.setName("Comedy");
@@ -57,9 +57,7 @@ class FilmDbStorageTests {
         Genre genre2 = new Genre();
         genre2.setName("Drama");
         genreDbStorage.create(genre2);
-        genreIds = genreDbStorage.getGenre().stream()
-                .map(Genre::getId)
-                .collect(Collectors.toList());
+        genres = new LinkedHashSet<>(genreDbStorage.getGenre());
     }
 
     @Test
@@ -69,15 +67,15 @@ class FilmDbStorageTests {
         film.setDescription("Mind-bending thriller");
         film.setReleaseDate(LocalDate.of(2010, 7, 16));
         film.setDuration(148);
-        film.setMpa(mpaId);
-        film.setGenre(genreIds);
+        film.setMpa(mpa);
+        film.setGenres(genres);
         film.setLikes(new HashSet<>());
 
         Film created = filmDbStorage.create(film);
         assertNotNull(created.getId());
         assertEquals("Inception", created.getName());
-        assertEquals(mpaId, created.getMpa());
-        assertEquals(genreIds.size(), created.getGenre().size());
+        assertEquals(mpa.getId(), created.getMpa().getId());
+        assertEquals(genres.size(), created.getGenres().size());
     }
 
     @Test
@@ -95,8 +93,8 @@ class FilmDbStorageTests {
         film.setDescription("Sci-fi action");
         film.setReleaseDate(LocalDate.of(1999, 3, 31));
         film.setDuration(136);
-        film.setMpa(mpaId);
-        film.setGenre(genreIds);
+        film.setMpa(mpa);
+        film.setGenres(genres);
         film.setLikes(new HashSet<>());
 
         Film created = filmDbStorage.create(film);
@@ -113,8 +111,8 @@ class FilmDbStorageTests {
         film.setDescription("Description");
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
         film.setDuration(100);
-        film.setMpa(mpaId);
-        film.setGenre(genreIds);
+        film.setMpa(mpa);
+        film.setGenres(genres);
         film.setLikes(new HashSet<>());
 
         Film created = filmDbStorage.create(film);
@@ -136,17 +134,21 @@ class FilmDbStorageTests {
         film.setDescription("Film with genres");
         film.setReleaseDate(LocalDate.of(2015, 5, 15));
         film.setDuration(140);
-        film.setMpa(mpaId);
-        film.setGenre(new ArrayList<>());
+        film.setMpa(mpa);
+        film.setGenres(new HashSet<>());
         film.setLikes(new HashSet<>());
 
         Film created = filmDbStorage.create(film);
         Long filmId = created.getId();
 
-        filmDbStorage.saveGenres(filmId, genreIds);
+        filmDbStorage.saveGenres(filmId, genres);
 
-        List<Long> genresFromDb = filmDbStorage.getGenresByFilmId(filmId);
-        assertEquals(genreIds.size(), genresFromDb.size());
-        assertTrue(genresFromDb.containsAll(genreIds));
+        Set<Genre> genresFromDb = filmDbStorage.getGenresByFilmId(filmId);
+        assertEquals(genres.size(), genresFromDb.size());
+
+        Set<Long> expectedIds = genres.stream().map(Genre::getId).collect(Collectors.toSet());
+        Set<Long> actualIds = genresFromDb.stream().map(Genre::getId).collect(Collectors.toSet());
+
+        assertEquals(expectedIds, actualIds);
     }
 }
