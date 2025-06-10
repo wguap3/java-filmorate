@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -22,12 +23,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User create(User user) {
 
-        user.setId(getNextId());
-        if (user.getName() == null || user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-        }
-        users.put(user.getId(), user);
-        log.info("Пользователь создан: {}", user);
+
         return user;
     }
 
@@ -66,22 +62,14 @@ public class InMemoryUserStorage implements UserStorage {
 
 
     @Override
-    public User getUserById(Long id) {
+    public Optional<User> getUserById(Long id) {
         log.info("Поиск пользователя по id: {}", id);
         User user = users.get(id);
         if (user == null) {
             throw new NotFoundException("Пользователь с id " + id + " не найден.");
         }
-        return user;
+        return Optional.of(user);
     }
 
-    private long getNextId() {
-        long currentMaxId = users.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
-    }
 
 }

@@ -9,19 +9,20 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Component
-public class InMemoryFilmStorage implements FilmStorage {
+public class InMemoryFilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
     private static final LocalDate MIN_DATA_RELEASE = LocalDate.of(1895, 12, 28);
 
-    @Override
+
     public Collection<Film> getFilms() {
         return films.values();
     }
 
-    @Override
+
     public Film create(Film film) {
         film.setId(getNextId());
         films.put(film.getId(), film);
@@ -29,7 +30,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film;
     }
 
-    @Override
+
     public Film update(Film newFilm) {
         Film existingFilm = films.get(newFilm.getId());
         if (existingFilm == null) {
@@ -52,7 +53,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return existingFilm;
     }
 
-    @Override
+
     public void delete(Long id) {
         if (films.containsKey(id)) {
             log.info("Фильм удален");
@@ -62,14 +63,11 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
     }
 
-    @Override
-    public Film getFilmById(Long id) {
+
+    public Optional<Film> getFilmById(Long id) {
         log.info("Поиск фильма по id: {}", id);
         Film film = films.get(id);
-        if (film == null) {
-            throw new NotFoundException("Фильм с id " + id + " не найден.");
-        }
-        return film;
+        return Optional.ofNullable(film);
     }
 
 
