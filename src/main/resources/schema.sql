@@ -8,11 +8,11 @@ DROP TABLE IF EXISTS mpa;
 
  CREATE TABLE IF NOT EXISTS mpa (
             id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-            name VARCHAR(50)
+            name VARCHAR(50) NOT NULL
          );
  CREATE TABLE IF NOT EXISTS genres (
              genre_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-             genre_name VARCHAR(50)
+             genre_name VARCHAR(50) NOT NULL
            );
  CREATE TABLE IF NOT EXISTS users (
              user_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
